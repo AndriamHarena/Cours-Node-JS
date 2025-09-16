@@ -28,6 +28,10 @@ app.get('/', (req, res) => {
 })
 
 require ('./src/routes/findAllMonuments.route')(app)
+require ('./src/routes/findMonumentByPK.route')(app)
+require ('./src/routes/createMonument.route')(app)
+require ('./src/routes/updateMonument.route')(app)
+// require ('./src/routes/deleteMonument.route')(app)
 
 // app.get('/monuments/:id', (req, res) => {
 //     const id = parseInt(req.params.id)
