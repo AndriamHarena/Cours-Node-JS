@@ -28,6 +28,7 @@ app.get('/', (req, res) => {
 })
 
 require ('./src/routes/findAllMonuments.route')(app)
+require ('./src/routes/searchMonuments.route')(app)
 require ('./src/routes/findMonumentByPK.route')(app)
 require ('./src/routes/createMonument.route')(app)
 require ('./src/routes/updateMonument.route')(app)
