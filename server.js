@@ -31,51 +31,6 @@ require ('./src/routes/findAllMonuments.route')(app)
 require ('./src/routes/findMonumentByPK.route')(app)
 require ('./src/routes/createMonument.route')(app)
 require ('./src/routes/updateMonument.route')(app)
-// require ('./src/routes/deleteMonument.route')(app)
-
-// app.get('/monuments/:id', (req, res) => {
-//     const id = parseInt(req.params.id)
-//     const monument = monuments.find(m => m.id === id)
-//     const message = `Le monument avec l'ID ${id} a bien été trouvé.`;
-//     const data = monument
-//     res.json({message, data})
-// })
-
-// app.get('/monuments', (req, res) => {
-//     const message = 'La liste des monuments a bien été récupérée.'
-//     const data = monuments
-//     res.json({message, data})
-// })
-
-// app.post('/monuments', (req, res) => {
-//     const id = 123
-//     const monumentCreated = { ...req.body, ...{id: id, created: new Date()} }
-//     monuments.push(monumentCreated)
-//     const message = `Le monument avec l'id ${id} a bien été ajouté`
-//     res.json({message, data: monumentCreated})
-// })
-
-
-// app.put('/monuments/:id', (req, res) => {
-//     const id = parseInt(req.params.id)
-//     const monumentUpdated = { ...req.body, id: id }
-//     monuments = monuments.map(m => {
-//         return m.id === id ? monumentUpdated : m
-//     })
-//     const message = `Le monument avec l'id ${id} a bien été modifié.`
-//     res.json({message, data: monumentUpdated})
-// })
-
-
-// app.delete('/monuments/:id', (req, res) => {    
-//     const id = parseInt(req.params.id)
-//     const monumentDeleted = monuments.find(m => m.id === id)
-//     monuments = monuments.filter(m => m.id !== id)
-    
-//     const message = `Le monument avec l'id ${id} a bien été supprimé.`
-//     res.json({message, data: monumentDeleted})
-// })
-
-
+require ('./src/routes/deleteMonument.route')(app)
 
 app.listen(3000, () => console.log('Server running at http://localhost:3000'))
