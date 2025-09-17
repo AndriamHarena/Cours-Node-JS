@@ -37,11 +37,11 @@ require ('./src/routes/updateMonument.route')(app)
 require ('./src/routes/deleteMonument.route')(app)
 require ('./src/routes/login.route')(app)
 
-app.use ((req, res) => {
+app.use((req, res) => {
     const url = req.originalUrl
     const method = req.method
-    const message = `La route ${method} ${url} n'existe pas. Réessayez avec une autre URL.`
-    res.status(404).json({ message, data: null });
+    const message = `La ressource demandée : "${method} ${url}" n'existe pas. Réessayez avec une autre URL.`
+    res.status(404).json({ message, data: null })
 })
 
 app.listen(3000, () => console.log('Server running at http://localhost:3000'))
