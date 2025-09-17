@@ -46,7 +46,6 @@ const initDb = async () => {
                 console.error("Une erreur s'est produite lors de la synchronisation des modèles :", error);
             });
 }
-``
 module.exports = {
     initDb,
     MonumentModel,
