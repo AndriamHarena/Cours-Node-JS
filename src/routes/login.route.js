@@ -10,7 +10,10 @@ const rateLimit = require('express-rate-limit');
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
     max: 5, 
-    message: "Trop de tentatives de connexion. Veuillez essayer plus tard."
+    message: {
+        message:"Trop de tentatives de connexion. Veuillez essayer plus tard.",
+        data: null
+    }
 });
 
 module.exports = (app) => {
@@ -25,31 +28,27 @@ module.exports = (app) => {
         }
 
         try {
-            // Vérification si l'utilisateur existe
+
             const user = await UserModel.findOne({ where: { username } });
             if (!user) {
                 return res.status(401).json({ message: "Utilisateur non trouvé", data: null });
             }
 
-            // Vérification du mot de passe
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
                 return res.status(401).json({ message: "Mot de passe incorrect", data: null });
             }
 
-            // Génération de l'access token (1 minute)
             const accessToken = jwt.sign(
                 { userName: user.username, userId: user.id }, 
                 privateKey, 
                 { algorithm: 'RS256', expiresIn: '1m' }
             );
 
-            // Génération du refresh token (7 jours)
             const refreshToken = crypto.randomBytes(64).toString('hex');
             const refreshTokenExpiry = new Date();
-            refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); // 7 jours
+            refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); 
 
-            // Mise à jour de l'utilisateur avec le refresh token
             await user.update({
                 refreshToken: refreshToken,
                 refreshTokenExpiry: refreshTokenExpiry
