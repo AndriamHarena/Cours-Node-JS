@@ -5,9 +5,16 @@ const fs = require('fs');
 const crypto = require('crypto');
 const privateKey = fs.readFileSync('./src/auth/jwtRS256.key');
 const { handleError } = require('../../helper');
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, 
+    max: 5, 
+    message: "Trop de tentatives de connexion. Veuillez essayer plus tard."
+});
 
 module.exports = (app) => {
-    app.post('/login', async (req, res) => {
+    app.post('/login', loginLimiter, async (req, res) => {
         const { username, password } = req.body;
 
         if (!username || !password) {
