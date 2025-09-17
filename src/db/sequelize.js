@@ -23,6 +23,7 @@ sequelize
         });
 
 const MonumentModel = require('../models/monument')(sequelize, DataTypes);
+const UserModel = require('../models/user')(sequelize, DataTypes);
 
 const initDb = async () => {
     return sequelize.sync({ alter: true })
