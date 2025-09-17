@@ -3,6 +3,7 @@ const favicon = require('serve-favicon')
 const morgan = require('morgan')
 const app = express()
 const sequelize = require('./src/db/sequelize')
+const auth = require('./src/auth/auth')
 
 function nightBlocker (req, res, next){
     const hour = new Date().getHours();
@@ -21,6 +22,7 @@ app
     .use(nightBlocker)
     .use(favicon(__dirname + '/favicon.ico'))
     .use(morgan("dev"))
+    .use(auth)
     
 
 app.get('/', (req, res) => {
