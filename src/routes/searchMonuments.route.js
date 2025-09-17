@@ -1,53 +1,41 @@
 const { MonumentModel } = require('../db/sequelize');
 const { Op } = require('sequelize');
+const { handleError } = require('../../helper');
 
 module.exports = (app) => {
-    app.get('/monuments/search', (req, res) => {
-        const { q, limit, offset, order } = req.query;
+    app.get('/monuments/search', async (req, res) => {
+        const { q, limit = 10, offset = 0, order = 'desc' } = req.query;
 
         if (!q || q.trim().length < 2) {
-            return res.status(400).json({
-                message: "Le terme de recherche doit contenir au moins 2 caractères.",
-                data: null
-            });
+            const message = 'Le paramètre de recherche "q" est requis et doit contenir au moins 2 caractères.';
+            return res.status(400).json({ message, data: null });
         }
 
-        const searchTerm = q.trim();
-        const limitValue = limit ? parseInt(limit) || undefined : undefined;
-        const offsetValue = offset ? parseInt(offset) || 0 : 0;
-        const orderDirection = (order && order.toLowerCase() === 'desc') ? 'DESC' : 'ASC';
+        try {
+            const sortOrder = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
-        MonumentModel.findAll({
-            where: {
-                [Op.or]: [
-                    {
-                        title: {
-                            [Op.like]: `%${searchTerm}%`
-                        }
-                    },
-                    {
-                        description: {
-                            [Op.like]: `%${searchTerm}%`
-                        }
-                    }
-                ]
-            },
-            limit: limitValue,
-            offset: offsetValue,
-            order: [['title', orderDirection]]
-        })
-        .then(monuments => {
-            if (monuments.length === 0) {
-                const message = `Aucun monument trouvé avec le terme de recherche "${searchTerm}".`;
+            const monuments = await MonumentModel.findAndCountAll({
+                where: {
+                    [Op.or]: [
+                        { title: { [Op.like]: `%${q}%` } },
+                        { description: { [Op.like]: `%${q}%` } }
+                    ]
+                },
+                limit: parseInt(limit),
+                offset: parseInt(offset),
+                order: [['title', sortOrder]]
+            });
+
+            if (monuments.count > 0) {
+                const message = `Recherche réussie. ${monuments.count} monument(s) trouvé(s).`;
+                return res.json({ message, data: monuments.rows, total: monuments.count });
+            } else {
+                const message = `Aucun monument trouvé pour la recherche "${q}".`;
                 return res.status(404).json({ message, data: null });
             }
-            
-            const message = `${monuments.length} monument(s) trouvé(s) avec le terme de recherche "${searchTerm}".`;
-            res.json({ message, data: monuments });
-        })
-        .catch(error => {
-            const message = `Une erreur s'est produite lors de la recherche du monument : ${error.message}`;
-            return res.status(500).json({ message, data: null });
-        });
+        } catch (error) {
+            const message = "La recherche n'a pas pu être effectuée. Réessayez dans quelques instants.";
+            return handleError(res, error, message);
+        }
     });
-}
+};

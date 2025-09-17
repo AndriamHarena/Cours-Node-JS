@@ -3,19 +3,18 @@ const { handleError } = require('../../helper');
 
 module.exports = (app) => {
     app.post('/monuments', async (req, res) => {
-        const monument = req.body;
+        const { monument } = req.body;
 
         try {
 
             const createdMonument = await MonumentModel.create(monument);
-            const message = `Le monument ${monument.name} a bien été créé.`;
+
+            const message = `Le monument ${createdMonument.title} a bien été créé.`;
             res.status(201).json({ message, data: createdMonument });
 
         } catch (error) {
-
-            const message = `Le monument n'a pas pu être créé. Réessayez dans quelques instants.`;
-            return handleError (res, message, error);
-
+            const message = "Le monument n'a pas pu être créé. Réessayez dans quelques instants.";
+            return handleError(res, error, message);
         }
     });
-};
+}   

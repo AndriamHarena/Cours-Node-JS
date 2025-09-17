@@ -1,24 +1,28 @@
+const { handleError } = require('../../helper');
 const { MonumentModel } = require('../db/sequelize');
 
 module.exports = (app) => {
-    app.delete('/monuments/:id', (req, res) => {
+    app.delete('/monuments/:id', async (req, res) => {
         const id = parseInt(req.params.id);
 
-        return MonumentModel.findByPk(id).then(monument => {
-            if (monument === null) {
+        try {
+            const monument = await MonumentModel.findByPk(id);
+
+            if (!monument) {
                 const message = `Le monument avec l'ID ${id} n'existe pas.`;
                 return res.status(404).json({ message, data: null });
             }
 
-            return MonumentModel.destroy({
+            await MonumentModel.destroy({
                 where: { id: id }
-            }).then(() => {
-                const message = `Le monument avec l'id ${id} a bien été supprimé.`;
-                res.json({ message, data: monument });
             });
-        }).catch(error => {
-            const message = `Une erreur s'est produite lors de la recherche du monument : ${error}`;
-            res.status(500).json({ message, data: null });
-        });
+
+            const message = `Le monument avec l'ID ${id} a bien été supprimé.`;
+            return res.json({ message, data: monument });
+
+        } catch (error) {
+            const message = "Le monument n'a pas pu être supprimé. Réessayez dans quelques instants.";
+            return handleError(res, error, message);
+        }
     });
 };
