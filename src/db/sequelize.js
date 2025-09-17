@@ -49,5 +49,6 @@ const initDb = async () => {
 ``
 module.exports = {
     initDb,
-    MonumentModel
+    MonumentModel,
+    UserModel
 };

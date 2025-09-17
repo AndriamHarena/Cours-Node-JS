@@ -33,6 +33,7 @@ require ('./src/routes/findMonumentByPK.route')(app)
 require ('./src/routes/createMonument.route')(app)
 require ('./src/routes/updateMonument.route')(app)
 require ('./src/routes/deleteMonument.route')(app)
+require ('./src/routes/login.route')(app)
 
 app.use ((req, res) => {
     const url = req.originalUrl
