@@ -4,6 +4,8 @@ const morgan = require('morgan')
 const app = express()
 const sequelize = require('./src/db/sequelize')
 const auth = require('./src/auth/auth')
+const http = require('http');
+const setupSocketServer = require('./src/socket');
 
 function nightBlocker (req, res, next){
     const hour = new Date().getHours();
@@ -24,6 +26,7 @@ app
     .use(morgan("dev"))
     .use(auth)
     
+require('./src/docs/swagger')(app)
 
 app.get('/', (req, res) => {
     res.send('Bienvenue sur l\'API Monumento ! Utilisez les routes pour interagir avec les monuments.')
@@ -38,6 +41,11 @@ require ('./src/routes/deleteMonument.route')(app)
 require ('./src/routes/login.route')(app)
 require ('./src/routes/register.route')(app)
 require ('./src/routes/refreshToken.route')(app)
+// Anecdote routes
+require('./src/routes/findAnecdotesByMonument.route')(app)
+require('./src/routes/createAnecdotes.route')(app)
+require('./src/routes/updateAnecdote.route')(app)
+require('./src/routes/deleteAnecdote.route')(app)
 
 app.use((req, res) => {
     const url = req.originalUrl
@@ -46,4 +54,6 @@ app.use((req, res) => {
     res.status(404).json({ message, data: null })
 })
 
-app.listen(3000, () => console.log('Server running at http://localhost:3000'))
+const server = http.createServer(app);
+setupSocketServer(server);
+server.listen(3000, () => console.log('Server & Socket.io running at http://localhost:3000'))

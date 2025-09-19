@@ -2,7 +2,7 @@ const { handleError } = require('../../helper');
 const { MonumentModel } = require('../db/sequelize');
 
 module.exports = (app) => {
-    app.delete('/monuments/:id', async (req, res) => {
+    app.delete('/api/monuments/:id', async (req, res) => {
         const id = parseInt(req.params.id);
 
         try {

@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const { handleError } = require('../../helper');
 
 module.exports = (app) => {
-    app.get('/monuments/search', async (req, res) => {
+    app.get('/api/monuments/search', async (req, res) => {
         const { q, limit = 10, offset = 0, order = 'desc' } = req.query;
 
         if (!q || q.trim().length < 2) {

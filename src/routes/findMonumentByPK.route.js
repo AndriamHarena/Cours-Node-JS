@@ -2,7 +2,7 @@ const { MonumentModel } = require('../db/sequelize');
 const { handleError } = require('../../helper');
 
 module.exports = (app) => {
-    app.get('/monuments/:id', async (req, res) => {
+    app.get('/api/monuments/:id', async (req, res) => {
         const id = parseInt(req.params.id);
 
         try {

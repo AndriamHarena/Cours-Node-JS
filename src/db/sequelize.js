@@ -24,9 +24,16 @@ sequelize
 
 const MonumentModel = require('../models/monument')(sequelize, DataTypes);
 const UserModel = require('../models/user')(sequelize, DataTypes);
+const AnecdoteModel = require('../models/anecdote')(sequelize, DataTypes);
+
+// Associations
+// Un Monument possède plusieurs Anecdotes
+MonumentModel.hasMany(AnecdoteModel, { foreignKey: 'monument_id', as: 'anecdotes' });
+// Une Anecdote appartient à un Monument
+AnecdoteModel.belongsTo(MonumentModel, { foreignKey: 'monument_id', as: 'monument' });
 
 const initDb = async () => {
-    return sequelize.sync({ alter: true })
+    return sequelize.sync()
             .then(() => {
         
                 // monuments.forEach(async (monument) => {
@@ -49,5 +56,6 @@ const initDb = async () => {
 module.exports = {
     initDb,
     MonumentModel,
-    UserModel
+    UserModel,
+    AnecdoteModel
 };

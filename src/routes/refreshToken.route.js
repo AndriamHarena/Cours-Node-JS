@@ -3,56 +3,47 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const privateKey = fs.readFileSync('./src/auth/jwtRS256.key');
 const { handleError } = require('../../helper');
+const { Op } = require('sequelize');
 
 module.exports = (app) => {
-    app.post('/refresh-token', async (req, res) => {
+    app.post('/api/refresh-token', async (req, res) => {
         const { refreshToken } = req.body;
 
-        if (!refreshToken) {
-            return res.status(400).json({ 
-                message: "Le refresh token est requis", 
-                data: null 
+        if (!refreshToken) {   
+            return res.status(400).json({
+                message: "Le token de rafraîchissement est requis",
+                data: null
             });
         }
 
         try {
+            const decoded = jwt.verify(refreshToken, privateKey, { algorithms: ['RS256'] });
+            const username = decoded.userName;
+
             const user = await UserModel.findOne({ 
-                where: { refreshToken } 
+                where: { 
+                    username,
+                    refreshToken: { [Op.eq]: refreshToken },
+                    refreshTokenExpiry: { [Op.gt]: new Date() }
+                } 
             });
-
+            
             if (!user) {
-                return res.status(401).json({ 
-                    message: "Refresh token invalide", 
-                    data: null 
-                });
-            }
-
-            const now = new Date();
-            if (user.refreshTokenExpiry < now) {
-                await user.update({
-                    refreshToken: null,
-                    refreshTokenExpiry: null
-                });
-
-                return res.status(401).json({ 
-                    message: "Refresh token expiré. Veuillez vous reconnecter.", 
-                    data: null 
+                return res.status(401).json({
+                    message: "Token de rafraîchissement invalide ou expiré",
+                    data: null
                 });
             }
 
             const newAccessToken = jwt.sign(
-                { userName: user.username, userId: user.id }, 
+                { userName: user.username }, 
                 privateKey, 
                 { algorithm: 'RS256', expiresIn: '1m' }
             );
 
-            return res.json({ 
-                message: "Access token renouvelé avec succès", 
-                data: { 
-                    userId: user.id,
-                    accessToken: newAccessToken,
-                    accessTokenExpiresIn: '1m'
-                } 
+            return res.json({
+                message: "Nouveau token d'accès généré avec succès",
+                data: { accessToken: newAccessToken }
             });
 
         } catch (error) {

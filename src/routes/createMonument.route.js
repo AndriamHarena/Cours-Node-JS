@@ -2,7 +2,7 @@ const { MonumentModel } = require('../db/sequelize');
 const { handleError } = require('../../helper');
 
 module.exports = (app) => {
-    app.post('/monuments', async (req, res) => {
+    app.post('/api/monuments', async (req, res) => {
         const { monument } = req.body;
 
         try {
@@ -17,4 +17,4 @@ module.exports = (app) => {
             return handleError(res, error, message);
         }
     });
-}   
+}

@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const { handleError } = require('../../helper');
 
 module.exports = (app) => {
-    app.get('/monuments', async (req, res) => {
+    app.get('/api/monuments', async (req, res) => {
         try {
             if (req.query.title) {
                 const { title, limit, orderBy } = req.query;

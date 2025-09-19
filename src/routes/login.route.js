@@ -2,7 +2,6 @@ const { UserModel } = require('../db/sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
-const crypto = require('crypto');
 const privateKey = fs.readFileSync('./src/auth/jwtRS256.key');
 const { handleError } = require('../../helper');
 const rateLimit = require('express-rate-limit');
@@ -11,13 +10,13 @@ const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
     max: 5, 
     message: {
-        message:"Trop de tentatives de connexion. Veuillez essayer plus tard.",
+        message:"Trop de tentatives de connexion. Veuillez réessayer plus tard.",
         data: null
     }
 });
 
 module.exports = (app) => {
-    app.post('/login', loginLimiter, async (req, res) => {
+    app.post('/api/login', loginLimiter, async (req, res) => {
         const { username, password } = req.body;
 
         if (!username || !password) {
@@ -40,29 +39,26 @@ module.exports = (app) => {
             }
 
             const accessToken = jwt.sign(
-                { userName: user.username, userId: user.id }, 
+                { userName: user.username }, 
                 privateKey, 
-                { algorithm: 'RS256', expiresIn: '1m' }
+                { algorithm: 'RS256', expiresIn: '30m' }
+            );
+            const refreshToken = jwt.sign(
+                { userName: user.username }, 
+                privateKey, 
+                { algorithm: 'RS256', expiresIn: '7d' }
             );
 
-            const refreshToken = crypto.randomBytes(64).toString('hex');
-            const refreshTokenExpiry = new Date();
-            refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 7); 
-
-            await user.update({
-                refreshToken: refreshToken,
-                refreshTokenExpiry: refreshTokenExpiry
-            });
+            const decodedRefreshToken = jwt.decode(refreshToken);
+            const refreshTokenExpiry = new Date(decodedRefreshToken.exp * 1000);
+            
+            user.refreshToken = refreshToken;
+            user.refreshTokenExpiry = refreshTokenExpiry;
+            await user.save();
 
             return res.json({ 
                 message: "Authentification réussie", 
-                data: { 
-                    userId: user.id, 
-                    accessToken,
-                    refreshToken,
-                    accessTokenExpiresIn: '1m',
-                    refreshTokenExpiresIn: '7d'
-                } 
+                data: { userId: user.id, accessToken, refreshToken } 
             });
 
         } catch (error) {

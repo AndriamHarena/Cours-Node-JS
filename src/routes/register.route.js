@@ -6,7 +6,7 @@ const fs = require('fs');
 const privateKey = fs.readFileSync('./src/auth/jwtRS256.key');
 
 module.exports = (app) => {
-  app.post('/register', async (req, res) => {
+  app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
